@@ -51,7 +51,7 @@ class HashTable:
         '''
         return self._hash(key) % self.capacity
 
-    def insert(self, key, value):
+    def insert(self, key, value, store=None):
         '''
         Store the value with the given key.
 
@@ -59,11 +59,17 @@ class HashTable:
 
         Fill this in.
         '''
+        # Added a store param defaulted to None so insert can be reused
+        # in the resize function without having to rewrite it there
+        # (for the new storage to be copied into)
+        if store == None:
+            store = self.storage
+
         index = self._hash_mod(self._hash(key))
         pair = LinkedPair(key, value)
 
-        if self.storage[index] != None:
-            cur_pair = self.storage[index]
+        if store[index] != None:
+            cur_pair = store[index]
 
             if cur_pair.key == key:
                 cur_pair.value = value
@@ -75,7 +81,7 @@ class HashTable:
                     return
             cur_pair.next = pair
         else:
-            self.storage[index] = pair
+            store[index] = pair
 
     def remove(self, key):
         '''
@@ -87,14 +93,13 @@ class HashTable:
         '''
         index = self._hash_mod(self._hash(key))
 
-        if self.storage[index] == None:  # nothing at key's index
+        if self.storage[index] == None:
             print("Error: nothing at that index")
             return
-        # something at key's index, and the head is item to delete
         elif self.storage[index].key == key:
             self.storage[index] = self.storage[index].next
             return
-        else:  # something at key's index, but deleted item not at head -- need to traverse
+        else:
             cur_pair = self.storage[index]
             while cur_pair.next != None:
                 cur_pair = cur_pair.next
@@ -135,30 +140,12 @@ class HashTable:
         self.capacity *= 2
         new_storage = [None] * self.capacity
 
-        def add_to_new(key, value):
-            index = self._hash_mod(self._hash(key))
-            pair = LinkedPair(key, value)
-            if new_storage[index] != None:
-                cur_pair = new_storage[index]
-
-                if cur_pair.key == key:
-                    cur_pair.value = value
-                    return
-                while cur_pair.next != None:
-                    cur_pair = cur_pair.next
-                    if cur_pair.key == key:
-                        cur_pair.value = value
-                        return
-                cur_pair.next = pair
-            else:
-                new_storage[index] = pair
-
         for head in self.storage:
             if head != None:
-                add_to_new(head.key, head.value)
+                self.insert(head.key, head.value, new_storage)
                 while head.next != None:
                     head = head.next
-                    add_to_new(head.key, head.value)
+                    self.insert(head.key, head.value, new_storage)
         self.storage = new_storage
 
 
