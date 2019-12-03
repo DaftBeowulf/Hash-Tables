@@ -117,15 +117,15 @@ class HashTable:
 
         if self.storage[index] == None:
             return None
-        elif self.storage[index].key != key:
+        elif self.storage[index].key == key:
+            return self.storage[index].value
+        else:
             cur_pair = self.storage[index]
             while cur_pair.next != None:
                 cur_pair = cur_pair.next
                 if cur_pair.key == key:
                     return cur_pair.value
             return None
-        else:
-            return self.storage[index].value
 
     def resize(self):
         '''
