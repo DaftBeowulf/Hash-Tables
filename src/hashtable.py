@@ -27,7 +27,7 @@ class HashTable:
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
 
-        return self._hash_djb2(key)
+        return hash(key)
 
     def _hash_djb2(self, key):
         '''
@@ -42,14 +42,12 @@ class HashTable:
 
         return hash_value
 
-        pass
-
     def _hash_mod(self, key):
         '''
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        return self._hash(key) % self.capacity
+        return self._hash_djb2(key) % self.capacity
 
     def insert(self, key, value, store=None):
         '''
