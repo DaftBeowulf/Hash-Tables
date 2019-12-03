@@ -82,6 +82,7 @@ class HashTable:
             cur_pair.next = pair
         else:
             store[index] = pair
+            # TODO: automatically resize here if load ratio > .7 (total count/capacity)
 
     def remove(self, key):
         '''
@@ -101,11 +102,13 @@ class HashTable:
             return
         else:
             cur_pair = self.storage[index]
-            while cur_pair.next != None:
-                cur_pair = cur_pair.next
-                if cur_pair.key == key:
-                    cur_pair = cur_pair.next
+            while cur_pair.next:
+                if cur_pair.next.key == key:
+                    cur_pair.next = cur_pair.next.next
                     return
+                else:
+                    cur_pair = cur_pair.next
+
         print("Error: that key does not exist")
 
     def retrieve(self, key):
@@ -156,7 +159,9 @@ if __name__ == "__main__":
     ht.insert("line_2", "Filled beyond capacity")
     ht.insert("line_3", "Linked list saves the day!")
 
-    print("")
+    ht.remove("line_2")
+    print(ht.storage[0], ht.storage[0].next)
+    print(ht.storage[1], ht.storage[1].next)
 
     # Test storing beyond capacity
     print(ht.retrieve("line_1"))
