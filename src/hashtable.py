@@ -65,7 +65,7 @@ class HashTable:
         if store == None:
             store = self.storage
 
-        index = self._hash_mod(self._hash(key))
+        index = self._hash_mod(key)
         pair = LinkedPair(key, value)
 
         if store[index] != None:
@@ -91,7 +91,7 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self._hash_mod(self._hash(key))
+        index = self._hash_mod(key)
 
         if self.storage[index] == None:
             print("Error: nothing at that index")
@@ -116,7 +116,7 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self._hash_mod(self._hash(key))
+        index = self._hash_mod(key)
 
         if self.storage[index] == None:
             return None
