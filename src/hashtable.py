@@ -59,9 +59,9 @@ class HashTable:
 
         Fill this in.
         '''
-        key = self._hash(key)
-        index = self._hash_mod(key)
+        index = self._hash_mod(self._hash(key))
         pair = LinkedPair(key, value)
+
         if self.storage[index] != None:
             cur_pair = self.storage[index]
 
@@ -85,8 +85,7 @@ class HashTable:
 
         Fill this in.
         '''
-        key = self._hash(key)
-        index = self._hash_mod(key)
+        index = self._hash_mod(self._hash(key))
 
         if self.storage[index] == None:  # nothing at key's index
             print("Error: nothing at that index")
@@ -112,8 +111,7 @@ class HashTable:
 
         Fill this in.
         '''
-        key = self._hash(key)
-        index = self._hash_mod(key)
+        index = self._hash_mod(self._hash(key))
 
         if self.storage[index] == None:
             return None
@@ -136,6 +134,32 @@ class HashTable:
         '''
         self.capacity *= 2
         new_storage = [None] * self.capacity
+
+        def add_to_new(key, value):
+            index = self._hash_mod(self._hash(key))
+            pair = LinkedPair(key, value)
+            if new_storage[index] != None:
+                cur_pair = new_storage[index]
+
+                if cur_pair.key == key:
+                    cur_pair.value = value
+                    return
+                while cur_pair.next != None:
+                    cur_pair = cur_pair.next
+                    if cur_pair.key == key:
+                        cur_pair.value = value
+                        return
+                cur_pair.next = pair
+            else:
+                new_storage[index] = pair
+
+        for head in self.storage:
+            if head != None:
+                add_to_new(head.key, head.value)
+                while head.next != None:
+                    head = head.next
+                    add_to_new(head.key, head.value)
+        self.storage = new_storage
 
 
 if __name__ == "__main__":
