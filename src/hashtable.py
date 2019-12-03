@@ -159,10 +159,6 @@ if __name__ == "__main__":
     ht.insert("line_2", "Filled beyond capacity")
     ht.insert("line_3", "Linked list saves the day!")
 
-    ht.remove("line_2")
-    print(ht.storage[0], ht.storage[0].next)
-    print(ht.storage[1], ht.storage[1].next)
-
     # Test storing beyond capacity
     print(ht.retrieve("line_1"))
     print(ht.retrieve("line_2"))
