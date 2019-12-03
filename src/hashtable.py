@@ -17,8 +17,10 @@ class HashTable:
     '''
 
     def __init__(self, capacity):
-        self.capacity = capacity  # Number of buckets in the hash table
+        self.capacity = float(capacity)  # Number of buckets in the hash table
         self.storage = [None] * capacity
+        self.count = 0
+        self.grown = False
 
     def _hash(self, key):
         '''
@@ -47,9 +49,23 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        return self._hash_djb2(key) % self.capacity
+        return int(self._hash_djb2(key) % self.capacity)
+        # had to be cast to int after casting floats/temps in self.resize()
+        # not sure why
 
-    def insert(self, key, value, store=None):
+    def _check_for_resize(self):
+        """
+        Checks to see if count/capacity ratio is over or under outer bounds
+        Triggers a doubling of the capacity if over, halves it if under
+        """
+        ratio = self.count/self.capacity
+        if ratio > .7:
+            self.resize()
+            self.grown = True
+        elif ratio < .2 and self.grown == True:
+            self.resize(.5)
+
+    def insert(self, key, value, store=None, resize=False):
         '''
         Store the value with the given key.
 
@@ -66,7 +82,7 @@ class HashTable:
         index = self._hash_mod(key)
         pair = LinkedPair(key, value)
 
-        if store[index] != None:
+        if store[index]:
             cur_pair = store[index]
 
             if cur_pair.key == key:
@@ -80,7 +96,10 @@ class HashTable:
             cur_pair.next = pair
         else:
             store[index] = pair
-            # TODO: automatically resize here if load ratio > .7 (total count/capacity)
+
+        self.count += 1
+        if resize == False:
+            self._check_for_resize()
 
     def remove(self, key):
         '''
@@ -97,12 +116,16 @@ class HashTable:
             return
         elif self.storage[index].key == key:
             self.storage[index] = self.storage[index].next
+            self.count -= 1
+            self._check_for_resize()
             return
         else:
             cur_pair = self.storage[index]
             while cur_pair.next:
                 if cur_pair.next.key == key:
                     cur_pair.next = cur_pair.next.next
+                    self.count -= 1
+                    self._check_for_resize()
                     return
                 else:
                     cur_pair = cur_pair.next
@@ -131,22 +154,25 @@ class HashTable:
                     return cur_pair.value
             return None
 
-    def resize(self):
+    def resize(self, factor=2):
         '''
         Doubles the capacity of the hash table and
         rehash all key/value pairs.
 
         Fill this in.
         '''
-        self.capacity *= 2
+        temp = float(self.capacity)
+        self.capacity = int(temp * factor)
+        # cast to float for multiplication and int for assigning capacity in case factor is .5
         new_storage = [None] * self.capacity
+        self.count = 0
 
         for head in self.storage:
             if head != None:
-                self.insert(head.key, head.value, new_storage)
+                self.insert(head.key, head.value, new_storage, True)
                 while head.next != None:
                     head = head.next
-                    self.insert(head.key, head.value, new_storage)
+                    self.insert(head.key, head.value, new_storage, True)
         self.storage = new_storage
 
 
