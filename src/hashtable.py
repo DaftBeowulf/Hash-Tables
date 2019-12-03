@@ -26,13 +26,8 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        hash_value = 5381
 
-        for char in key:
-            hash_value = ((hash_value << 5) + hash_value) + char
-
-        # return hash_value % self.capacity
-        return hash_value
+        return hash(key)
 
     def _hash_djb2(self, key):
         '''
@@ -40,6 +35,13 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
+        # hash_value = 5381
+
+        # for char in key:
+        #     hash_value = ((hash_value << 5) + hash_value) + char
+
+        # return hash_value
+
         pass
 
     def _hash_mod(self, key):
@@ -61,10 +63,19 @@ class HashTable:
         index = self._hash_mod(key)
         pair = LinkedPair(key, value)
         if self.storage[index] != None:
-            # TODO: handle with chaining
-            print("Error: collision detected")
-            return
-        self.storage[index] = pair
+            cur_pair = self.storage[index]
+
+            if cur_pair.key == key:
+                cur_pair.value = value
+                return
+            while cur_pair.next != None:
+                cur_pair = cur_pair.next
+                if cur_pair.key == key:
+                    cur_pair.value = value
+                    return
+            cur_pair.next = pair
+        else:
+            self.storage[index] = pair
 
     def remove(self, key):
         '''
@@ -76,10 +87,22 @@ class HashTable:
         '''
         key = self._hash(key)
         index = self._hash_mod(key)
-        if self.storage[index] == None:
-            print("Error: that key does not exist")
+
+        if self.storage[index] == None:  # nothing at key's index
+            print("Error: nothing at that index")
             return
-        self.storage[index] = None
+        # something at key's index, and the head is item to delete
+        elif self.storage[index].key == key:
+            self.storage[index] = self.storage[index].next
+            return
+        else:  # something at key's index, but deleted item not at head -- need to traverse
+            cur_pair = self.storage[index]
+            while cur_pair.next != None:
+                cur_pair = cur_pair.next
+                if cur_pair.key == key:
+                    cur_pair = cur_pair.next
+                    return
+        print("Error: that key does not exist")
 
     def retrieve(self, key):
         '''
@@ -91,7 +114,15 @@ class HashTable:
         '''
         key = self._hash(key)
         index = self._hash_mod(key)
+
         if self.storage[index] == None:
+            return None
+        elif self.storage[index].key != key:
+            cur_pair = self.storage[index]
+            while cur_pair.next != None:
+                cur_pair = cur_pair.next
+                if cur_pair.key == key:
+                    return cur_pair.value
             return None
         else:
             return self.storage[index].value
